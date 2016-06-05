@@ -1,5 +1,7 @@
 package com.mgl.hazelcast.manager;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.mgl.hazelcast.manager.operation.ManagementMessage;
 import com.mgl.hazelcast.manager.operation.QuitOperation;
 import com.mgl.hazelcast.manager.operation.QuitResult;
@@ -38,6 +40,7 @@ implements MessageListener<ManagementMessage>, LifecycleListener {
 
     private HazelcastInstance hazelcastClient;
     private String lifecycleRegistrationId;
+    private String managementRegistrationId;
 
     private QuitOperation quitOperation;
 
@@ -50,27 +53,58 @@ implements MessageListener<ManagementMessage>, LifecycleListener {
         try {
             lifecycleRegistrationId = hazelcastClient.getLifecycleService().addLifecycleListener(this);
             ITopic<ManagementMessage> managementTopic = hazelcastClient.getTopic(getManagementTopicName());
+            managementRegistrationId = managementTopic.addMessageListener(this);
             quitOperation = new QuitOperation(Instant.now(), getInstanceName());
             managementTopic.publish(quitOperation);
             awaitTermination();
-            log.info("Stopped a Hazelcast instance");
+            log.info("Unregistering listeners");
+            unregisterListeners();
+            log.info("Stopped Hazelcast instance '{}'", getInstanceName());
         } finally {
             hazelcastClient.shutdown();
         }
     }
 
+    private void unregisterListeners() {
+        if (managementRegistrationId == null) {
+            log.warn("Already unregistered from management topic '{}'",
+                    getInstanceName(), getManagementTopicName());
+        } else {
+            log.info("Unregistering from management topic '{}'",
+                    getInstanceName(), getManagementTopicName());
+            ITopic<ManagementMessage> managementTopic =
+                    hazelcastClient.getTopic(getManagementTopicName());
+            boolean unregistered = managementTopic
+                    .removeMessageListener(managementRegistrationId);
+            checkState(unregistered, "Not unregistered from management topic");
+        }
+        if (lifecycleRegistrationId == null) {
+            log.warn("Not registered to lifecycle topic '{}'", getManagementTopicName());
+        } else {
+            log.info("Unregistering from lifecycle topic '{}'", getManagementTopicName());
+            boolean unregistered = hazelcastClient.getLifecycleService()
+                    .removeLifecycleListener(lifecycleRegistrationId);
+            Preconditions.checkState(unregistered, "Not unregistered from lifecycle service");
+        }
+    }
+
+
     @Override
     public void onMessage(Message<ManagementMessage> message) {
+        if (message.getPublishingMember().localMember()) {
+            log.debug("Ignoring self-emmited message {}", message);
+        }
         ManagementMessage mmessage = message.getMessageObject();
         if (mmessage instanceof QuitResult) {
             QuitResult quitResponse = (QuitResult) mmessage;
             if (quitOperation.isResponse(quitResponse)) {
+                log.info("Got the proper response to our quit command, terminating");
                 signalTermination();
             } else {
                 log.info("Listened (irrelevant to me) quit response (may be ok): {}", quitResponse);
             }
         } else {
-            log.info("Listened an unexpected message (may be ok): {}", mmessage);
+            log.info("Listened an unexpected management message (may be ok): {}", mmessage);
         }
     }
 
@@ -79,16 +113,7 @@ implements MessageListener<ManagementMessage>, LifecycleListener {
         switch (event.getState()) {
             case SHUTTING_DOWN:
             {
-                if (lifecycleRegistrationId == null) {
-                    log.warn("Hazelcast client shut down, but not registered to lifecycle topic '{}'",
-                            getManagementTopicName());
-                } else {
-                    log.info("Hazelcast client shut down, unregistering from lifecycle topic '{}'",
-                            getManagementTopicName());
-                    boolean unregistered = hazelcastClient.getLifecycleService()
-                            .removeLifecycleListener(lifecycleRegistrationId);
-                    Preconditions.checkState(unregistered, "Not unregistered from lifecycle service");
-                }
+                log.info("Hazelcast client shutting down");
                 signalTermination();
                 break;
             }
