@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.hazelcast.core.Member;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -78,7 +79,8 @@ implements MessageListener<ManagementMessage>, LifecycleListener {
 
     @Override
     public void onMessage(Message<ManagementMessage> message) {
-        if (message.getPublishingMember().localMember()) {
+        Member member = message.getPublishingMember();
+        if (member != null && member.localMember()) {
             log.debug("Ignoring self-emmited message {}", message);
         }
         ManagementMessage operation = message.getMessageObject();

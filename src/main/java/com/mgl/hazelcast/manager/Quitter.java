@@ -21,6 +21,7 @@ import io.airlift.airline.OptionType;
 
 import java.time.Instant;
 
+import com.hazelcast.core.Member;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -91,7 +92,8 @@ implements MessageListener<ManagementMessage>, LifecycleListener {
 
     @Override
     public void onMessage(Message<ManagementMessage> message) {
-        if (message.getPublishingMember().localMember()) {
+        Member member = message.getPublishingMember();
+        if (member != null && member.localMember()) {
             log.debug("Ignoring self-emmited message {}", message);
         }
         ManagementMessage mmessage = message.getMessageObject();
