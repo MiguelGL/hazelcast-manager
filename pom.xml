@@ -248,10 +248,12 @@
                                             <name>wrapper.logfile.maxfiles</name>
                                             <value>10</value>
                                         </property>
+<!--
                                         <property>
                                             <name>run.as.user.envvar</name>
-                                            <value>gibson</value>
+                                            <value>maybeanunprivilegeduser</value>
                                         </property>
+-->
                                         <property>
                                             <name>wrapper.disable_restarts.automatic</name>
                                             <value>FALSE</value>
