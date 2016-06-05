@@ -67,7 +67,7 @@ implements MessageListener<ManagementMessage>, LifecycleListener {
             if (quitOperation.isResponse(quitResponse)) {
                 signalTermination();
             } else {
-                log.info("Listened irrelevant to me quit response (may be ok): {}", quitResponse);
+                log.info("Listened (irrelevant to me) quit response (may be ok): {}", quitResponse);
             }
         } else {
             log.info("Listened an unexpected message (may be ok): {}", mmessage);
