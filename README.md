@@ -48,7 +48,20 @@ So just:
     $ mvn clean install
 
 You'll find the zipped bundle in
-`hazelcast/target/hazelcast-manager-<version>-bin.zip`.
+`hazelcast/target/hazelcast-manager-<version>-bin.zip`, comprising the
+following directories:
+
+- `bin`: UNIX and Windows launcher script and other native
+  dependencies to support the "system service" features.
+
+- `lib`: This is where Hazelcast's and your own jars, together with
+  other dependencies are saved.
+
+- `logs`: Plain empty directory where the distribution will log to by
+  default.
+
+- `etc`: Directory for all configuration files (Hazelcast, logging and
+  system service). These will be explained next.
 
 ## Configuration and Usage
 
