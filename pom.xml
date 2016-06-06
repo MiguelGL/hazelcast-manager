@@ -326,6 +326,7 @@
                         </daemon>
                     </daemons>
                     <repositoryName>lib</repositoryName>
+                    <repositoryLayout>flat</repositoryLayout>
                     <configurationDirectory>etc</configurationDirectory>
                     <copyConfigurationDirectory>false</copyConfigurationDirectory>
                     <useDaemonIdAsWrapperConfName>true</useDaemonIdAsWrapperConfName>
