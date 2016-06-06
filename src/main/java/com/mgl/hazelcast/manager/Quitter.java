@@ -22,12 +22,18 @@ import io.airlift.airline.OptionType;
 import java.time.Instant;
 
 import com.hazelcast.core.Member;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@NoArgsConstructor
+@ToString(of = {"configFile"}, callSuper = true)
+@EqualsAndHashCode(of = {"configFile"}, callSuper = true)
 @Command(name = "stop", description = "Stop a Hazelcast instance")
 public class Quitter
 extends BaseCommand
