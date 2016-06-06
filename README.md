@@ -51,18 +51,41 @@ You'll find the zipped bundle in
 `hazelcast/target/hazelcast-manager-<version>-bin.zip`, comprising the
 following directories:
 
-- `bin`: UNIX and Windows launcher script and other native
+- `bin/`: UNIX and Windows launcher script and other native
   dependencies to support the "system service" features.
-
-- `lib`: This is where Hazelcast's and your own jars, together with
+- `lib/`: This is where Hazelcast's and your own jars, together with
   other dependencies are saved.
-
-- `logs`: Plain empty directory where the distribution will log to by
+- `logs/`: Plain empty directory where the distribution will log to by
   default.
-
-- `etc`: Directory for all configuration files (Hazelcast, logging and
+- `etc/`: Directory for all configuration files (Hazelcast, logging and
   system service). These will be explained next.
 
 ## Configuration and Usage
 
-TODO
+You can use this project to `start` several nodes pointing to specific
+XML configuration file(s). In order to selectively `stop` a node you
+need to assign different names to each node via the `-name` command
+line option.
+
+Every started node listens on a Topic named after `-mgmnt-topic` for a
+quit message. When the information in this message includes a specific
+node `-name`, it will itself terminate.
+
+You can look into the `Starter` and `Quitter` classes (and the
+`BaseCommand` parent for both to find out the specific parameters for
+starting and terminating a node, respectively.
+
+What I do is just symlink `bin/hazelcast-manager` into my server's
+`/etc/init.d` directory and then use `udate-rc.d` to configure its
+runlevels.
+
+The configuration used for the system service is built via the
+`<configuration/>` section of the `appassembler-maven-plugin` in the
+POM. This ends up in the `etc/wrapper-hazelcast-manager.conf` file
+bundled in the final zipfile and can also be edited directly in that
+file for other deployments.
+
+## Final
+
+If you are interested in using this feature project and would like
+more information please sure file an issue and I will be glad to help!
