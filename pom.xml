@@ -52,8 +52,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/MiguelGL/hazelcast-manager.git</connection>
-        <developerConnection>git@github.com:MiguelGL/hazelcast-manager.git</developerConnection>
+        <connection>scm:git:git@github.com:MiguelGL/hazelcast-manager.git</connection>
+        <developerConnection>scm:git:git@github.com:MiguelGL/hazelcast-manager.git</developerConnection>
         <url>https://github.com/MiguelGL/hazelcast-manager</url>
         <tag>HEAD</tag>
     </scm>
