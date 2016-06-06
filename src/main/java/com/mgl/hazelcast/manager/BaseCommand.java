@@ -2,18 +2,24 @@ package com.mgl.hazelcast.manager;
 
 import io.airlift.airline.Option;
 import io.airlift.airline.OptionType;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Getter @Setter
+@NoArgsConstructor
+@ToString(exclude = {"terminationLock"})
+@EqualsAndHashCode(exclude = {"terminationLock"})
 public abstract class BaseCommand implements Runnable {
 
     @Option(name = {"-name", "-n"},
             description = "Instance name",
             required = false,
             type = OptionType.COMMAND)
-    @Getter @Setter private String instanceName = "our-hazelcast-instance";
+    private String instanceName = "our-hazelcast-instance";
 
     @Option(name = {"-mgmnt-topic", "-t"},
             description = "Management topic name",
@@ -21,7 +27,7 @@ public abstract class BaseCommand implements Runnable {
             type = OptionType.COMMAND)
     private String managementTopicName = "hz-management-topic";
 
-    private final Object terminationLock = new Object();
+    @Getter(AccessLevel.NONE) private final Object terminationLock = new Object();
 
     protected void awaitTermination() throws InterruptedException {
         synchronized (terminationLock) {

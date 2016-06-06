@@ -27,20 +27,22 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.hazelcast.core.Member;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@NoArgsConstructor
+@ToString(of = {"configFile", "preQuitWaitSecs"}, callSuper = true)
+@EqualsAndHashCode(of = {"configFile", "preQuitWaitSecs"}, callSuper = true)
 @Command(name = "start", description = "Start a Hazelcast instance")
 public class Starter
 extends BaseCommand
 implements MessageListener<ManagementMessage>, LifecycleListener {
-
-    private HazelcastInstance hazelcastInstance;
-    private String lifecycleRegistrationId;
-    private String managementRegistrationId;
 
     @Option(name = {"-conf-file", "-c"},
             description = "Path to configuration file",
@@ -54,6 +56,10 @@ implements MessageListener<ManagementMessage>, LifecycleListener {
             required = false,
             type = OptionType.COMMAND)
     @Getter @Setter private int preQuitWaitSecs = 5;
+
+    private HazelcastInstance hazelcastInstance;
+    private String lifecycleRegistrationId;
+    private String managementRegistrationId;
 
     @Override
     @SneakyThrows
